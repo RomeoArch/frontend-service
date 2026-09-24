@@ -12,8 +12,7 @@
 nav { display: flex; align-items: center; gap: 8px; }
 nav a { position: relative; color: inherit; text-decoration: none; padding: 13px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background-color 180ms ease; }
 nav a.active::after { content: ''; position: absolute; bottom: 5px; left: calc(50% - 2px); width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
-.login-link { justify-self: end; display: inline-flex; align-items: center; gap: 17px; padding: 12px 19px; border-radius: 999px; background: #e8e9e4; color: #191919; font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 180ms ease, color 180ms ease; }
-.login-link svg { width: 17px; height: 17px; }
+.login-link { justify-self: end; display: inline-flex; align-items: center; padding: 12px 19px; border-radius: 999px; background: #e8e9e4; color: #191919; font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 180ms ease, color 180ms ease; }
 .site-header:has(a:focus-visible) { background: #151a28; color: #fff; border-color: #151a28; }
 .site-header:has(a:focus-visible) .login-link { background: #fff; color: #191919; }
 nav a:focus-visible { background: rgb(255 255 255 / 12%); }
@@ -49,4 +48,4 @@ main:has(app-home) { padding-block: 0 80px; }
 .signup-link { color: inherit; border: 1px solid rgb(255 255 255 / 25%); border-radius: 999px; padding: 12px 17px; font-size: 14px; text-decoration: none; white-space: nowrap; }
 .signup-link:hover { background: rgb(255 255 255 / 10%); }
 @media (max-width: 1000px) { .account-actions { grid-column: 2; grid-row: 1; } }
-@media (max-width: 420px) { .header-inner { width: calc(100% - 24px); column-gap: 8px; } .brand { font-size: 19px; gap: 5px; } .brand-mark { width: 25px; height: 25px; } .signup-link, .account-actions .login-link { font-size: 12px; padding: 10px 11px; } .account-actions .login-link { gap: 6px; } }
+@media (max-width: 420px) { .header-inner { width: calc(100% - 24px); column-gap: 8px; } .brand { font-size: 19px; gap: 5px; } .brand-mark { width: 25px; height: 25px; } .signup-link, .account-actions .login-link { font-size: 12px; padding: 10px 11px; } }

@@ -69,12 +69,12 @@ p { line-height: 1.7; }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
 
-    .home-details, .explore {
+    .home-details, .explore, .contact {
       animation: section-arrive linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 40%;
     }
-    .home-details:focus-within, .explore:focus-within { animation: none; }
+    .home-details:focus-within, .explore:focus-within, .contact:focus-within { animation: none; }
   }
 }
 
@@ -93,7 +93,7 @@ p { line-height: 1.7; }
 .vector-word { position: relative; display: inline-block; }
 .vector-source { display: block; }
 .vector-cloud { display: none; position: absolute; inset: 0; pointer-events: none; font-weight: 400; letter-spacing: -.03em; }
-.vector-particle { position: absolute; left: var(--x); top: var(--y); font: 500 clamp(18px, 1.7vw, 24px)/1.35 monospace; white-space: nowrap; color: #bed8ff; text-shadow: 0 0 12px #719aff; opacity: 0; }
+.vector-particle { position: absolute; left: var(--x); top: var(--y); font: 300 clamp(13px, 1.15vw, 17px)/1.35 ui-monospace, 'Cascadia Mono', Consolas, monospace; white-space: nowrap; color: rgb(200 222 255 / 62%); text-shadow: 0 0 10px rgb(113 154 255 / 45%); opacity: 0; }
 .hero-heading .eyebrow { width: fit-content; }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -113,6 +113,8 @@ p { line-height: 1.7; }
       padding-block: 48px;
     }
     .hero-title { width: 100%; }
+    /* Overlap the hero's scroll tail so the intro rises while the vectors drift away. */
+    .home-details { position: relative; z-index: 1; margin-top: -65svh; }
     .vector-cloud { display: block; }
     .vector-source {
       animation: encode-title linear both;
@@ -130,8 +132,8 @@ p { line-height: 1.7; }
   }
 }
 @keyframes encode-title {
-  0%, 6% { opacity: 1; filter: blur(0); transform: scale(1); }
-  28%, 100% { opacity: 0; filter: blur(8px); transform: scale(.98); }
+  0%, 3% { opacity: 1; filter: blur(0); transform: scale(1); }
+  20%, 100% { opacity: 0; filter: blur(8px); transform: scale(.98); }
 }
 
 /* Clip drifting fragments without creating a new scrolling container. */
@@ -153,50 +155,50 @@ body { overflow-x: clip; }
     .vector-coordinate {
       animation: coordinate-drift linear both;
       animation-timeline: --vector-sequence;
-      animation-range: contain 0% contain 100%;
+      animation-range: contain var(--start, 8%) contain var(--end, 70%);
     }
     .vector-bracket {
       animation: bracket-dissolve linear both;
       animation-timeline: --vector-sequence;
-      animation-range: contain 0% contain 100%;
+      animation-range: contain 22% contain var(--fade, 38%);
     }
     .coordinate-number {
       animation: number-to-dust linear both;
       animation-timeline: --vector-sequence;
-      animation-range: contain 0% contain 100%;
+      animation-range: contain var(--start, 8%) contain var(--end, 70%);
     }
     .coordinate-dust {
       animation: dust-disperse linear both;
       animation-timeline: --vector-sequence;
-      animation-range: contain 0% contain 100%;
+      animation-range: contain var(--start, 8%) contain var(--end, 70%);
     }
   }
 }
 @keyframes vector-emerge {
-  0%, 8% { opacity: 0; }
-  25%, 92% { opacity: 1; }
+  0%, 4% { opacity: 0; }
+  14%, 90% { opacity: 1; }
   100% { opacity: 0; }
 }
 @keyframes bracket-dissolve {
-  0%, 30% { opacity: 1; filter: blur(0); }
-  46%, 100% { opacity: 0; filter: blur(5px); }
+  0% { opacity: 1; filter: blur(0); }
+  100% { opacity: 0; filter: blur(5px); }
 }
+/* Motion starts at the first frame of each number's range so nothing sits still. */
 @keyframes coordinate-drift {
-  0%, 30% { transform: translate(0, 0) rotate(0deg); }
-  48% { transform: translate(calc(var(--nx) * .15), calc(var(--ny) * .12)) rotate(calc(var(--spin) * -.15)); }
-  66% { transform: translate(calc(var(--nx) * .42 + var(--bend)), calc(var(--ny) * .4)) rotate(calc(var(--spin) * .3)); }
-  82% { transform: translate(calc(var(--nx) * .7), calc(var(--ny) * .7 + var(--bend) * .3)) rotate(calc(var(--spin) * .6)); }
+  0% { transform: translate(0, 0) rotate(0deg); animation-timing-function: cubic-bezier(.3, 0, .6, 1); }
+  30% { transform: translate(calc(var(--nx) * .2 + var(--bend) * .5), calc(var(--ny) * .22)) rotate(calc(var(--spin) * -.2)); }
+  65% { transform: translate(calc(var(--nx) * .6 - var(--bend) * .3), calc(var(--ny) * .62 + var(--bend) * .25)) rotate(calc(var(--spin) * .45)); }
   100% { transform: translate(var(--nx), var(--ny)) rotate(var(--spin)); }
 }
 @keyframes number-to-dust {
-  0%, 52% { opacity: 1; filter: blur(0); transform: scale(1); }
-  70% { opacity: .55; filter: blur(1px); transform: scale(.75); }
-  86%, 100% { opacity: 0; filter: blur(4px); transform: scale(.15); }
+  0%, 15% { opacity: 1; filter: blur(0); transform: scale(1); }
+  45% { opacity: .5; filter: blur(1.5px); transform: scale(.7); }
+  70%, 100% { opacity: 0; filter: blur(4px); transform: scale(.15); }
 }
 @keyframes dust-disperse {
-  0%, 55% { opacity: 0; transform: scale(.2); }
-  72% { opacity: .9; transform: scale(1); }
-  88% { opacity: .4; transform: scale(2.3); }
+  0%, 25% { opacity: 0; transform: scale(.2); }
+  50% { opacity: .8; transform: scale(1.2); }
+  75% { opacity: .35; transform: scale(2.6); }
   100% { opacity: 0; transform: scale(4); }
 }
 
@@ -212,3 +214,29 @@ body { overflow-x: clip; }
 @media (max-width: 520px) { .meetup-actions { flex-direction: column; gap: 12px; } .next-meetup time { display: block; margin-top: 4px; } }
 @media (prefers-reduced-motion: reduce) { .meetup-button { transition: none; } }
 
+.contact { padding-bottom: 40px; }
+.contact-text { color: var(--muted); font-size: 18px; margin-bottom: 0; }
+.contact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 28px; }
+.contact-card {
+  position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between;
+  height: 140px; padding: 22px; border-radius: 20px; overflow: hidden;
+  color: var(--ink); text-decoration: none;
+  border: 1px solid rgb(255 255 255 / 8%); background: rgb(255 255 255 / 3%); backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgb(0 0 0 / 25%);
+  transition: transform 350ms ease, border-color 350ms ease, box-shadow 350ms ease;
+}
+.contact-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(600px circle at 50% 50%, rgb(255 255 255 / 8%), transparent 40%); opacity: 0; transition: opacity 350ms ease; }
+.contact-card::after { content: ''; position: absolute; left: 20px; bottom: 18px; width: 40px; height: 2px; border-radius: 2px; background: rgb(255 255 255 / 20%); opacity: .5; transition: width 350ms ease, opacity 350ms ease; }
+.contact-card:hover, .contact-card:focus-visible { transform: translateY(-6px); border-color: rgb(255 255 255 / 18%); box-shadow: 0 20px 60px rgb(0 0 0 / 45%); }
+.contact-card:hover::before, .contact-card:focus-visible::before { opacity: 1; }
+.contact-card:hover::after, .contact-card:focus-visible::after { width: 70px; opacity: 1; }
+.contact-card--soon { cursor: default; }
+.contact-card--discord:hover, .contact-card--discord:focus-visible { border-color: rgb(88 101 242 / 50%); box-shadow: 0 20px 60px rgb(88 101 242 / 15%); }
+.contact-card--linkedin:hover, .contact-card--linkedin:focus-visible { border-color: rgb(10 102 194 / 50%); box-shadow: 0 20px 60px rgb(10 102 194 / 15%); }
+.contact-card--github:hover { border-color: rgb(255 255 255 / 25%); box-shadow: 0 20px 60px rgb(255 255 255 / 8%); }
+.contact-card--partners:hover, .contact-card--partners:focus-visible { border-color: rgb(139 92 246 / 50%); box-shadow: 0 20px 60px rgb(139 92 246 / 15%); }
+.contact-icon { width: 26px; height: 26px; opacity: .9; }
+.contact-title { font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+.contact-badge { position: absolute; top: 16px; right: 16px; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: rgb(255 255 255 / 75%); background: rgb(255 255 255 / 8%); border: 1px solid rgb(255 255 255 / 12%); }
+@media (max-width: 900px) { .contact-grid { grid-template-columns: repeat(2, 1fr); } .contact-card { height: 130px; } .contact-text { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { .contact-card, .contact-card::before, .contact-card::after { transition: none; } }
