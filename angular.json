@@ -54,6 +54,14 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+            "github-pages": {
+              "fileReplacements": [
+                {
+                  "with": "src/app/app.config.pages.ts",
+                  "replace": "src/app/app.config.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
