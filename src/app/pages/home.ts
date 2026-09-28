@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { PAST_MEETUPS, PastMeetup } from '../data/past-meetups';
 
 @Component({
   selector: 'app-home',
@@ -7,27 +8,107 @@ import { RouterLink } from '@angular/router';
   template: `
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-heading">
-                <p class="eyebrow vector-word"><span class="vector-source">LEARN. BUILD. CONNECT.</span><span class="vector-cloud" aria-hidden="true">@for (particle of vectors; track $index) { <span class="vector-particle" [style.--x]="particle.x" [style.--y]="particle.y" [style.--dx]="particle.dx" [style.--dy]="particle.dy" [style.--turn]="particle.turn" [style.--fade]="particle.fade"><span class="vector-bracket">[</span>@for (coordinate of particle.coordinates; track $index) {<span class="vector-coordinate" [style.--nx]="coordinate.x" [style.--ny]="coordinate.y" [style.--bend]="coordinate.bend" [style.--spin]="coordinate.spin" [style.--start]="coordinate.start" [style.--end]="coordinate.end"><span class="coordinate-number">{{ coordinate.value }}</span><span class="coordinate-dust"></span></span>@if (!$last) {<span class="vector-bracket">, </span>}}<span class="vector-bracket">]</span></span> }</span></p>
+        <div class="hero-lockup">
+                <p class="eyebrow vector-word"><span class="vector-source">LEARN. BUILD. CONNECT.</span></p>
                 <h1 id="hero-title" class="hero-title" aria-label="Codeforce. GenAi. Community.">
           @for (word of words; track word) {
-            <span class="vector-word"><span class="vector-source">{{ word }}</span><span class="vector-cloud" aria-hidden="true">
-              @for (particle of vectors; track $index) {
-                <span class="vector-particle" [style.--x]="particle.x" [style.--y]="particle.y" [style.--dx]="particle.dx" [style.--dy]="particle.dy" [style.--turn]="particle.turn" [style.--fade]="particle.fade"><span class="vector-bracket">[</span>@for (coordinate of particle.coordinates; track $index) {<span class="vector-coordinate" [style.--nx]="coordinate.x" [style.--ny]="coordinate.y" [style.--bend]="coordinate.bend" [style.--spin]="coordinate.spin" [style.--start]="coordinate.start" [style.--end]="coordinate.end"><span class="coordinate-number">{{ coordinate.value }}</span><span class="coordinate-dust"></span></span>@if (!$last) {<span class="vector-bracket">, </span>}}<span class="vector-bracket">]</span></span>
-              }
-            </span></span>
+            <span class="vector-word"><span class="vector-source">{{ word }}</span></span>
           }
         </h1>
+          <!-- One embedding cloud spanning the whole heading: eyebrow and title. -->
+          <span class="vector-cloud heading-cloud" aria-hidden="true">
+            @for (particle of vectors; track $index) {
+              <span class="vector-particle" [style.--x]="particle.x" [style.--y]="particle.y" [style.--dx]="particle.dx" [style.--dy]="particle.dy" [style.--turn]="particle.turn" [style.--fade]="particle.fade">@for (coordinate of particle.coordinates; track $index) {<span class="vector-coordinate" [style.--nx]="coordinate.x" [style.--ny]="coordinate.y" [style.--bend]="coordinate.bend" [style.--spin]="coordinate.spin" [style.--start]="coordinate.start" [style.--end]="coordinate.end">@if ($first) {<span class="vector-bracket">[</span>}<span class="coordinate-number">{{ coordinate.value }}</span><span class="vector-bracket">{{ $last ? ']' : ', ' }}</span><span class="coordinate-dust"></span></span>}</span>
+            }
+          </span>
+        </div>
       </div>
     </section>
     <section class="home-details" aria-label="Discover Codeforce">
       <div class="hero-intro">
-        <p class="lead">Learn, build and connect with a community exploring the future of generative AI. A place for curious minds and ideas worth sharing.</p>
-                <div class="meetup-actions">
-          <a class="meetup-button meetup-button--primary" href="https://www.meetup.com/ai-austria/events/316278162/?eventOrigin=group_events_list" target="_blank" rel="noopener noreferrer">Join Meetup September<span class="sr-only"> (opens in a new tab)</span></a>
-          <a class="meetup-button meetup-button--secondary" href="https://romeoarch.github.io/my-presentation/#last-meetup" target="_blank" rel="noopener noreferrer">View Last Presentation<span class="sr-only"> (opens in a new tab)</span></a>
+        <p class="lead">GenAI Codeforce brings together developers, AI engineers and GenAI enthusiasts to share what's new, learn from real-world projects and exchange practical experience.</p>
+        <p class="tagline">A monthly online meetup on the latest in GenAI, with live demos from builders.</p>
+        <div class="meetup-cards">
+          <div class="meetup-card">
+            <span class="meetup-card-label">Next meetup</span>
+            <time class="meetup-card-date" [attr.datetime]="nextMeetup.start.toISOString()">{{ nextMeetup.day }}<span class="meetup-card-time">{{ nextMeetup.time }}</span></time>
+          </div>
+          <div class="meetup-card">
+            <span class="meetup-card-label">Starts in</span>
+            @if (countdown(); as c) {
+              <p class="countdown" aria-live="off">
+                <span><strong>{{ c.days }}</strong> days</span>
+                <span><strong>{{ c.hours }}</strong> hrs</span>
+                <span><strong>{{ c.minutes }}</strong> min</span>
+                <span><strong>{{ c.seconds }}</strong> sec</span>
+              </p>
+            } @else {
+              <p class="countdown countdown--live">Happening now or just wrapped up. See you next month!</p>
+            }
+          </div>
+          <div class="meetup-card">
+            <span class="meetup-card-label">Save your spot</span>
+            <a class="meetup-button meetup-button--primary" [href]="nextMeetup.url" target="_blank" rel="noopener noreferrer">Join the meetup<span class="sr-only"> (opens in a new tab)</span></a>
+          </div>
         </div>
-        <p class="next-meetup">Next meetup: <time datetime="2026-09-30T17:00:00+02:00">Wednesday, Sep 30 · 5:00 PM to 6:30 PM CEST</time></p>
       </div>
+    </section>
+    <section #format class="format" [class.is-visible]="formatVisible()" aria-labelledby="format-heading">
+      <div class="section-heading"><p class="eyebrow">WHAT HAPPENS AT A MEETUP</p><h2 id="format-heading">One evening online. Three parts. Always interactive.</h2></div>
+      <ol class="format-steps">
+        @for (step of formatSteps; track step.title) {
+          <li class="format-step" [style.--i]="$index">
+            <span class="format-step-number" aria-hidden="true">0{{ $index + 1 }}</span>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.text }}</p>
+          </li>
+        }
+      </ol>
+      <div class="format-discussion">
+        <span class="meetup-card-label">Open discussion throughout</span>
+        <p>Ask questions, share opinions and challenge ideas at every step.</p>
+      </div>
+    </section>
+    <section class="past" aria-labelledby="past-heading">
+      <div class="section-heading"><p class="eyebrow">PAST MEETUPS</p><h2 id="past-heading">What we talked about.</h2></div>
+      <ol class="past-list">
+        @for (meetup of pastMeetups; track meetup.month) {
+          <li>
+            <button type="button" class="past-card" (click)="openMeetup(meetup)" [attr.aria-label]="'Open details: ' + meetup.title">
+              <div class="past-media">
+                @if (meetup.image && !brokenImages().has(meetup.image)) {
+                  <img [src]="meetup.image" alt="" loading="lazy" (error)="markBroken(meetup.image)" />
+                } @else {
+                  <span class="past-media-empty" aria-hidden="true">{{ monthLabel(meetup.month) }}</span>
+                }
+              </div>
+              <div class="past-body">
+                <time class="meetup-card-label" [attr.datetime]="meetup.month">{{ monthLabel(meetup.month) }} meetup</time>
+                <h3>{{ meetup.title }}</h3>
+                <span class="past-more" aria-hidden="true">View recap</span>
+              </div>
+            </button>
+          </li>
+        }
+      </ol>
+      <dialog #meetupDialog class="past-dialog" aria-labelledby="past-dialog-title" (click)="onDialogClick($event)" (close)="selectedMeetup.set(null)">
+        @if (selectedMeetup(); as m) {
+          <button type="button" class="past-dialog-close" (click)="closeMeetup()" aria-label="Close">×</button>
+          @if (m.image && !brokenImages().has(m.image)) {
+            <img class="past-dialog-image" [src]="m.image" [alt]="'Screenshot of the ' + m.title + ' call'" />
+          }
+          <div class="past-dialog-body">
+            <time class="meetup-card-label" [attr.datetime]="m.month">{{ monthLabel(m.month) }} meetup</time>
+            <h3 id="past-dialog-title">{{ m.title }}</h3>
+            @for (paragraph of m.description; track $index) {
+              <p class="past-dialog-intro">{{ paragraph }}</p>
+            }
+            @if (m.linkedinUrl) {
+              <a class="past-link" [href]="m.linkedinUrl" target="_blank" rel="noopener noreferrer">Read the post on LinkedIn ↗<span class="sr-only"> (opens in a new tab)</span></a>
+            }
+          </div>
+        }
+      </dialog>
     </section>
     <section class="explore" aria-labelledby="explore-heading">
       <div class="section-heading"><p class="eyebrow">MAKE YOURSELF AT HOME</p><h2 id="explore-heading">A community in the making.</h2></div>
@@ -62,41 +143,114 @@ import { RouterLink } from '@angular/router';
   `,
 })
 export class HomePage {
-  readonly words = ['Codeforce.', 'GenAi.', 'Community.'];
-  // Deterministic decorative embedding coordinates; no model or network request.
-  readonly vectors = Array.from({ length: 4 }, (_, index) => {
-    const direction = index % 3;
-    return {
-      x: `${index % 2 === 0 ? 0 : 8}%`,
-      y: `${(index - 1) * 30}px`,
-      dx: `${direction === 0 ? -180 - index * 18 : direction === 2 ? 180 + index * 18 : (index - 6) * 12}px`,
-      dy: `${direction === 1 ? -320 - index * 16 : -70 - index * 19}px`,
-      turn: `${(index % 5 - 2) * 9}deg`,
-      // Brackets dissolve at slightly different moments per vector.
-      fade: `${36 + index * 4}%`,
-      coordinates: Array.from({ length: 8 }, (_, dimension) => {
-        const seed = index * 8 + dimension + 1;
-        // Seeded paths look organic but remain stable when scrolling backward.
-        const noise = (offset: number) => {
-          const value = Math.sin(seed * 127.1 + offset * 311.7) * 43758.5453;
-          return value - Math.floor(value);
-        };
-        const start = 18 + noise(5) * 14;
-        return {
-          value: (noise(6) * 2 - 1).toFixed(3),
-          x: `${(noise(1) - .5) * 1000}px`,
-          y: `${-120 - noise(2) * 520}px`,
-          bend: `${(noise(3) - .5) * 240}px`,
-          spin: `${(noise(4) - .5) * 220}deg`,
-          // Each number breaks away on its own schedule, once the vector has been readable for a moment.
-          start: `${start}%`,
-          end: `${start + 42 + noise(7) * 20}%`,
-        };
-      }),
-    };
+  // Update this once a month for the next session.
+  readonly nextMeetup = {
+    start: new Date('2026-09-30T17:00:00+02:00'),
+    end: new Date('2026-09-30T18:30:00+02:00'),
+    day: 'Wednesday, Sep 30',
+    time: '5:00 PM to 6:30 PM CEST',
+    url: 'https://www.meetup.com/ai-austria/events/316278162/?eventOrigin=group_events_list',
+  };
+
+  readonly formatSteps = [
+    { title: 'GenAI news', text: "The month's biggest releases and announcements." },
+    { title: 'Papers & tech', text: 'New research and tools, explained in plain words.' },
+    { title: 'Live demos', text: 'Builders show real projects, live.' },
+  ];
+
+  readonly pastMeetups = [...PAST_MEETUPS].sort((a, b) => b.month.localeCompare(a.month));
+  readonly brokenImages = signal(new Set<string>());
+
+  monthLabel(month: string) {
+    return new Date(`${month}-01T12:00:00`).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  readonly selectedMeetup = signal<PastMeetup | null>(null);
+  private readonly meetupDialog = viewChild.required<ElementRef<HTMLDialogElement>>('meetupDialog');
+
+  openMeetup(meetup: PastMeetup) {
+    this.selectedMeetup.set(meetup);
+    this.meetupDialog().nativeElement.showModal();
+  }
+
+  closeMeetup() {
+    this.meetupDialog().nativeElement.close();
+  }
+
+  // Clicking the dimmed backdrop (the dialog element itself, outside its content) closes it.
+  onDialogClick(event: MouseEvent) {
+    if (event.target === event.currentTarget) this.closeMeetup();
+  }
+
+  markBroken(image: string) {
+    this.brokenImages.update(set => new Set(set).add(image));
+  }
+
+  readonly formatVisible = signal(false);
+  private readonly formatSection = viewChild.required<ElementRef<HTMLElement>>('format');
+
+  private readonly now = signal(Date.now());
+  readonly countdown = computed(() => {
+    const ms = this.nextMeetup.start.getTime() - this.now();
+    if (ms <= 0) return null;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const s = Math.floor(ms / 1000);
+    return { days: Math.floor(s / 86400), hours: pad(Math.floor(s / 3600) % 24), minutes: pad(Math.floor(s / 60) % 60), seconds: pad(s % 60) };
   });
+
+  constructor() {
+    const timer = setInterval(() => this.now.set(Date.now()), 1000);
+    const destroyRef = inject(DestroyRef);
+    destroyRef.onDestroy(() => clearInterval(timer));
+
+    // Play the "what happens" sequence once, when the section scrolls into view.
+    afterNextRender(() => {
+      const observer = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) return;
+        this.formatVisible.set(true);
+        observer.disconnect();
+      }, { threshold: .35 });
+      observer.observe(this.formatSection().nativeElement);
+      destroyRef.onDestroy(() => observer.disconnect());
+    });
+  }
+
+  readonly words = ['Codeforce.', 'GenAi.', 'Community.'];
+  // Enough, long enough vectors for one cloud to fill the whole heading.
+  readonly vectors = this.createVectors(9, 22);
+
+  // Deterministic decorative embedding coordinates; no model or network request.
+  private createVectors(count: number, dimensions: number) {
+    return Array.from({ length: count }, (_, index) => {
+      const direction = index % 3;
+      return {
+        x: `${index % 2 === 0 ? 0 : 8}%`,
+        y: `${(index - (count - 1) / 2) * 24}px`,
+        dx: `${direction === 0 ? -180 - index * 18 : direction === 2 ? 180 + index * 18 : (index - 6) * 12}px`,
+        dy: `${direction === 1 ? -320 - index * 16 : -70 - index * 19}px`,
+        turn: `${(index % 5 - 2) * 9}deg`,
+        // Brackets dissolve at slightly different moments per vector.
+        fade: `${34 + index * 2}%`,
+        coordinates: Array.from({ length: dimensions }, (_, dimension) => {
+          const seed = index * dimensions + dimension + 1;
+          // Seeded paths look organic but remain stable when scrolling backward.
+          const noise = (offset: number) => {
+            const value = Math.sin(seed * 127.1 + offset * 311.7) * 43758.5453;
+            return value - Math.floor(value);
+          };
+          const start = noise(5) * 1.5;
+          return {
+            value: (noise(6) * 2 - 1).toFixed(3),
+            x: `${(noise(1) - .5) * 1000}px`,
+            y: `${-120 - noise(2) * 520}px`,
+            bend: `${(noise(3) - .5) * 240}px`,
+            spin: `${(noise(4) - .5) * 220}deg`,
+            // Each number breaks away on its own schedule, once the vector has been readable for a moment.
+            start: `${start}%`,
+            end: `${start + 55 + noise(7) * 15}%`,
+          };
+        }),
+      };
+    });
+  }
 }
-
-
-
-

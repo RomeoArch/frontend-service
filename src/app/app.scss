@@ -10,16 +10,16 @@
 .brand { display: inline-flex; align-items: center; gap: 9px; justify-self: start; color: inherit; font-size: 25px; font-weight: 600; text-decoration: none; letter-spacing: -1.2px; }
 .brand-mark { width: 32px; height: 32px; flex-shrink: 0; }
 nav { display: flex; align-items: center; gap: 8px; }
-nav a { position: relative; color: inherit; text-decoration: none; padding: 13px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background-color 180ms ease; }
+nav a, nav button { position: relative; color: inherit; text-decoration: none; padding: 13px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background-color 180ms ease; }
 nav a.active::after { content: ''; position: absolute; bottom: 5px; left: calc(50% - 2px); width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 .login-link { justify-self: end; display: inline-flex; align-items: center; padding: 12px 19px; border-radius: 999px; background: #e8e9e4; color: #191919; font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 180ms ease, color 180ms ease; }
-.site-header:has(a:focus-visible) { background: #151a28; color: #fff; border-color: #151a28; }
-.site-header:has(a:focus-visible) .login-link { background: #fff; color: #191919; }
-nav a:focus-visible { background: rgb(255 255 255 / 12%); }
-.site-header a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.site-header:has(a:focus-visible, button:focus-visible) { background: #151a28; color: #fff; border-color: #151a28; }
+.site-header:has(a:focus-visible, button:focus-visible) .login-link { background: #fff; color: #191919; }
+nav a:focus-visible, nav button:focus-visible { background: rgb(255 255 255 / 12%); }
+.site-header a:focus-visible, .site-header button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
 @media (hover: hover) {
   .site-header:hover { background: #151a28; color: #fff; border-color: #151a28; }
-  nav a:hover { background: rgb(255 255 255 / 12%); }
+  nav a:hover, nav button:hover { background: rgb(255 255 255 / 12%); }
   .site-header:hover .login-link { background: #fff; color: #191919; }
   .site-header .login-link:hover { background: #d7d7d7; }
 }
@@ -33,7 +33,7 @@ footer { display: flex; justify-content: space-between; gap: 20px; border-top: 1
   .brand { font-size: 23px; }
   .login-link { grid-column: 2; grid-row: 1; padding: 10px 16px; }
   nav { flex-wrap: wrap; grid-row: 2; grid-column: 1 / -1; justify-content: center; padding-block: 6px; gap: 4px; }
-  nav a { padding: 12px 18px; }
+  nav a, nav button { padding: 12px 18px; }
   main { padding-block: 44px; }
   footer { flex-direction: column; gap: 8px; }
 }
@@ -49,3 +49,19 @@ main:has(app-home) { padding-block: 0 80px; }
 .signup-link:hover { background: rgb(255 255 255 / 10%); }
 @media (max-width: 1000px) { .account-actions { grid-column: 2; grid-row: 1; } }
 @media (max-width: 420px) { .header-inner { width: calc(100% - 24px); column-gap: 8px; } .brand { font-size: 19px; gap: 5px; } .brand-mark { width: 25px; height: 25px; } .signup-link, .account-actions .login-link { font-size: 12px; padding: 10px 11px; } }
+
+/* "Coming soon…" drop-downs for sections that are not built yet. */
+.soon { position: relative; display: inline-flex; }
+.site-header button { font: inherit; border: 0; background: none; color: inherit; cursor: pointer; }
+.site-header button.login-link { background: #e8e9e4; color: #191919; font-size: 14px; font-weight: 500; }
+.site-header button.signup-link { border: 1px solid rgb(255 255 255 / 25%); font-size: 14px; }
+.soon-popover {
+  position: absolute; top: calc(100% + 10px); left: 50%; z-index: 30; transform: translateX(-50%);
+  padding: 10px 16px; border-radius: 12px; white-space: nowrap;
+  font-size: 13px; font-weight: 500; color: #fff;
+  background: #151a28; border: 1px solid rgb(255 255 255 / 12%); box-shadow: 0 12px 32px rgb(0 0 0 / 40%);
+  animation: soon-drop 160ms ease-out;
+}
+.account-actions .soon-popover { left: auto; right: 0; transform: none; }
+@keyframes soon-drop { from { opacity: 0; translate: 0 -6px; } }
+@media (prefers-reduced-motion: reduce) { .soon-popover { animation: none; } }

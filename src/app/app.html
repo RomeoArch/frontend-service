@@ -4,13 +4,13 @@
   <div class="header-inner">
     <a class="brand" routerLink="/" aria-label="Codeforce home">Codeforce<svg class="brand-mark" aria-hidden="true" viewBox="0 0 36 36" fill="none"><g stroke="currentColor" stroke-width="1.3"><ellipse cx="18" cy="18" rx="15" ry="6" /><ellipse cx="18" cy="18" rx="15" ry="6" transform="rotate(60 18 18)" /><ellipse cx="18" cy="18" rx="15" ry="6" transform="rotate(120 18 18)" /></g></svg></a>
     <nav aria-label="Main navigation">
-      <a routerLink="/research" routerLinkActive="active" ariaCurrentWhenActive="page">Research</a>
       <a routerLink="/team" routerLinkActive="active" ariaCurrentWhenActive="page">Team</a>
       <a routerLink="/meetups" routerLinkActive="active" ariaCurrentWhenActive="page">Meetups</a>
-      <a routerLink="/projects" routerLinkActive="active" ariaCurrentWhenActive="page">Projects</a>
-      <a routerLink="/community" routerLinkActive="active" ariaCurrentWhenActive="page">Community</a>
+      <span class="soon"><button type="button" aria-haspopup="true" [attr.aria-expanded]="openMenu() === 'research'" aria-controls="soon-research" (click)="toggle('research')">Research</button>@if (openMenu() === 'research') {<span class="soon-popover" id="soon-research" role="status">Coming soon…</span>}</span>
+      <span class="soon"><button type="button" aria-haspopup="true" [attr.aria-expanded]="openMenu() === 'projects'" aria-controls="soon-projects" (click)="toggle('projects')">Projects</button>@if (openMenu() === 'projects') {<span class="soon-popover" id="soon-projects" role="status">Coming soon…</span>}</span>
+      <span class="soon"><button type="button" aria-haspopup="true" [attr.aria-expanded]="openMenu() === 'community'" aria-controls="soon-community" (click)="toggle('community')">Community</button>@if (openMenu() === 'community') {<span class="soon-popover" id="soon-community" role="status">Coming soon…</span>}</span>
     </nav>
-    <div class="account-actions"><a class="login-link" routerLink="/login">Log in</a><a class="signup-link" routerLink="/signup">Sign up</a>
+    <div class="account-actions"><span class="soon"><button type="button" class="login-link" aria-haspopup="true" [attr.aria-expanded]="openMenu() === 'login'" aria-controls="soon-login" (click)="toggle('login')">Log in</button>@if (openMenu() === 'login') {<span class="soon-popover" id="soon-login" role="status">Coming soon…</span>}</span><span class="soon"><button type="button" class="signup-link" aria-haspopup="true" [attr.aria-expanded]="openMenu() === 'signup'" aria-controls="soon-signup" (click)="toggle('signup')">Sign up</button>@if (openMenu() === 'signup') {<span class="soon-popover" id="soon-signup" role="status">Coming soon…</span>}</span>
   </div>
   </div>
 </header>
