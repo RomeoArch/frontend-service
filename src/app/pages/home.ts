@@ -1,10 +1,8 @@
 import { Component, DestroyRef, ElementRef, afterNextRender, computed, inject, signal, viewChild, WritableSignal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { PAST_MEETUPS, PastMeetup } from '../data/past-meetups';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
   template: `
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-heading">
@@ -70,7 +68,7 @@ import { PAST_MEETUPS, PastMeetup } from '../data/past-meetups';
       </div>
     </section>
     <section class="past" aria-labelledby="past-heading">
-      <div class="section-heading"><p class="eyebrow">PAST MEETUPS</p><h2 id="past-heading">What we talked about.</h2></div>
+      <div class="section-heading"><p class="eyebrow">PAST MEETUPS</p><h2 id="past-heading">Real talks. Live demos. Open questions.</h2></div>
       <div class="past-carousel">
       <ol #pastList class="past-list" (scroll)="updatePastNav()">
         @for (meetup of pastMeetups; track meetup.month) {
@@ -122,14 +120,6 @@ import { PAST_MEETUPS, PastMeetup } from '../data/past-meetups';
           </div>
         }
       </dialog>
-    </section>
-    <section class="explore" aria-labelledby="explore-heading">
-      <div class="section-heading"><p class="eyebrow">MAKE YOURSELF AT HOME</p><h2 id="explore-heading">A community in the making.</h2></div>
-      <div class="tile-grid">
-        <a class="tile" routerLink="/meetups"><span class="tile-number">01 / GET TOGETHER</span><h3>Meetups <span>↗</span></h3><p>Discover future events and opportunities to connect.</p></a>
-        <a class="tile" routerLink="/projects"><span class="tile-number">02 / BUILD SOMETHING</span><h3>Projects <span>↗</span></h3><p>Explore ideas and experiments from the community.</p></a>
-        <a class="tile" routerLink="/community"><span class="tile-number">03 / FIND YOUR PEOPLE</span><h3>Community <span>↗</span></h3><p>Help shape what comes next. Learn and grow together.</p></a>
-      </div>
     </section>
     <section class="contact" aria-labelledby="contact-heading">
       <div class="section-heading"><p class="eyebrow">STAY IN THE LOOP</p><h2 id="contact-heading">Get in touch.</h2><p class="contact-text">Join our GenAI community or follow us for updates, demos and meetup announcements.</p></div>
