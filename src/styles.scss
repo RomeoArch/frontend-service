@@ -595,19 +595,18 @@ body {
 }
 
 /* Page-load intro: the title resolves from a blur after ~2s.
-   The intro is listed after the scroll animation so it wins while running; with fill-mode
-   `backwards` it has no effect once finished, handing control back to the scroll timeline. */
+   It runs on the outer word while the scroll fade runs on the inner source, so the two
+   compose: scrolling away mid-intro still fades the title out instead of leaving it
+   sitting under the content that rises over the hero. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .vector-source {
-      animation: encode-title linear both, title-intro 2.8s ease-out backwards;
-      animation-timeline: --vector-sequence, auto;
-      animation-range: contain 0% contain 100%, normal;
+    .hero-heading .vector-word {
+      animation: title-intro 2.8s ease-out backwards;
     }
 
     /* "Codeforce." and "Community." resolve first, then "GenAi." fills the middle. */
-    .hero-title .vector-word:nth-child(2) .vector-source {
-      animation-delay: 0s, 0.8s;
+    .hero-title .vector-word:nth-child(2) {
+      animation-delay: .8s;
     }
   }
 }
@@ -1022,21 +1021,17 @@ body {
 @media (max-width: 760px) {
   .format-steps {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
 
-  /* Stacked: only the last step drops into the discussion bar. */
-  .format-step:not(:last-child)::after {
+  /* Stacked: a line running through the translucent cards would cross the text,
+     so connect the steps only through the gaps between them. */
+  .format-steps::before {
     display: none;
   }
 
-  .format-steps::before {
-    top: 24px;
-    bottom: 24px;
-    left: 50%;
-    right: auto;
-    width: 1px;
-    height: auto;
-    background: linear-gradient(180deg, var(--color-blue), var(--color-purple));
+  .format-step:not(:last-child)::after {
+    height: 33px;
   }
 }
 
@@ -1079,13 +1074,6 @@ body {
 
   .format.is-visible .format-step::after {
     transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) and (max-width: 760px) {
-  .format-steps::before {
-    transform: scaleY(0);
-    transform-origin: top;
   }
 }
 
