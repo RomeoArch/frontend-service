@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, afterNextRender, computed, inject, signal, viewChild, WritableSignal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PAST_MEETUPS, PastMeetup } from '../data/past-meetups';
 
@@ -71,7 +71,8 @@ import { PAST_MEETUPS, PastMeetup } from '../data/past-meetups';
     </section>
     <section class="past" aria-labelledby="past-heading">
       <div class="section-heading"><p class="eyebrow">PAST MEETUPS</p><h2 id="past-heading">What we talked about.</h2></div>
-      <ol class="past-list">
+      <div class="past-carousel">
+      <ol #pastList class="past-list" (scroll)="updatePastNav()">
         @for (meetup of pastMeetups; track meetup.month) {
           <li>
             <button type="button" class="past-card" (click)="openMeetup(meetup)" [attr.aria-label]="'Open details: ' + meetup.title">
@@ -91,6 +92,18 @@ import { PAST_MEETUPS, PastMeetup } from '../data/past-meetups';
           </li>
         }
       </ol>
+      @if (pastPositions.length > 1) {
+        <div class="past-nav">
+          <button type="button" (click)="scrollPast(-1)" [disabled]="pastAtStart()" aria-label="Previous meetups"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg></button>
+          <span class="past-dots" aria-hidden="true">
+            @for (p of pastPositions; track p) {
+              <span [class.active]="p === pastIndex()"></span>
+            }
+          </span>
+          <button type="button" (click)="scrollPast(1)" [disabled]="pastAtEnd()" aria-label="More meetups"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg></button>
+        </div>
+      }
+      </div>
       <dialog #meetupDialog class="past-dialog" aria-labelledby="past-dialog-title" (click)="onDialogClick($event)" (close)="selectedMeetup.set(null)">
         @if (selectedMeetup(); as m) {
           <button type="button" class="past-dialog-close" (click)="closeMeetup()" aria-label="Close">×</button>
@@ -182,11 +195,44 @@ export class HomePage {
     if (event.target === event.currentTarget) this.closeMeetup();
   }
 
+  private readonly pastList = viewChild.required<ElementRef<HTMLElement>>('pastList');
+  readonly pastAtStart = signal(true);
+  readonly pastAtEnd = signal(false);
+  readonly pastIndex = signal(0);
+  // Two cards are visible at once, so there is one stop fewer than cards.
+  readonly pastPositions = Array.from({ length: Math.max(1, this.pastMeetups.length - 1) }, (_, i) => i);
+
+  // Move by one card width (plus the gap) per click.
+  scrollPast(direction: 1 | -1) {
+    const list = this.pastList().nativeElement;
+    const card = list.firstElementChild as HTMLElement | null;
+    list.scrollBy({ left: direction * ((card?.offsetWidth ?? list.clientWidth) + 20) });
+  }
+
+  updatePastNav() {
+    const list = this.pastList().nativeElement;
+    this.pastAtStart.set(list.scrollLeft <= 1);
+    this.pastAtEnd.set(list.scrollLeft + list.clientWidth >= list.scrollWidth - 1);
+    const card = list.firstElementChild as HTMLElement | null;
+    const step = (card?.offsetWidth ?? list.clientWidth) + 20;
+    this.pastIndex.set(Math.min(this.pastPositions.length - 1, Math.round(list.scrollLeft / step)));
+  }
+
   markBroken(image: string) {
     this.brokenImages.update(set => new Set(set).add(image));
   }
 
   readonly formatVisible = signal(false);
+
+  private revealOnScroll(element: HTMLElement, visible: WritableSignal<boolean>, destroyRef: DestroyRef) {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      visible.set(true);
+      observer.disconnect();
+    }, { threshold: .3 });
+    observer.observe(element);
+    destroyRef.onDestroy(() => observer.disconnect());
+  }
   private readonly formatSection = viewChild.required<ElementRef<HTMLElement>>('format');
 
   private readonly now = signal(Date.now());
@@ -204,14 +250,10 @@ export class HomePage {
     destroyRef.onDestroy(() => clearInterval(timer));
 
     // Play the "what happens" sequence once, when the section scrolls into view.
+    // Play each section's reveal once, when it scrolls into view.
     afterNextRender(() => {
-      const observer = new IntersectionObserver(([entry]) => {
-        if (!entry.isIntersecting) return;
-        this.formatVisible.set(true);
-        observer.disconnect();
-      }, { threshold: .35 });
-      observer.observe(this.formatSection().nativeElement);
-      destroyRef.onDestroy(() => observer.disconnect());
+      this.revealOnScroll(this.formatSection().nativeElement, this.formatVisible, destroyRef);
+      this.updatePastNav();
     });
   }
 

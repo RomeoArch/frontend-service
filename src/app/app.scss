@@ -13,6 +13,7 @@ nav { display: flex; align-items: center; gap: 8px; }
 nav a, nav button { position: relative; color: inherit; text-decoration: none; padding: 13px 18px; border-radius: 999px; font-size: 14px; font-weight: 500; transition: background-color 180ms ease; }
 nav a.active::after { content: ''; position: absolute; bottom: 5px; left: calc(50% - 2px); width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
 .login-link { justify-self: end; display: inline-flex; align-items: center; padding: 12px 19px; border-radius: 999px; background: #e8e9e4; color: #191919; font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 180ms ease, color 180ms ease; }
+.site-header.is-scrolled { background: rgb(21 26 40 / 92%); border-color: #151a28; }
 .site-header:has(a:focus-visible, button:focus-visible) { background: #151a28; color: #fff; border-color: #151a28; }
 .site-header:has(a:focus-visible, button:focus-visible) .login-link { background: #fff; color: #191919; }
 nav a:focus-visible, nav button:focus-visible { background: rgb(255 255 255 / 12%); }
@@ -53,6 +54,7 @@ main:has(app-home) { padding-block: 0 80px; }
 /* "Coming soon…" drop-downs for sections that are not built yet. */
 .soon { position: relative; display: inline-flex; }
 .site-header button { font: inherit; border: 0; background: none; color: inherit; cursor: pointer; }
+.site-header nav button { font-size: 14px; font-weight: 500; }
 .site-header button.login-link { background: #e8e9e4; color: #191919; font-size: 14px; font-weight: 500; }
 .site-header button.signup-link { border: 1px solid rgb(255 255 255 / 25%); font-size: 14px; }
 .soon-popover {

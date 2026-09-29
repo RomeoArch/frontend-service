@@ -5,12 +5,12 @@ import { DemoSession } from './demo-session';
 export const routes: Routes = [
   { path: 'admin', title: 'Admin contacts | Codeforce', canActivate: [() => inject(DemoSession).isAdmin() || inject(Router).createUrlTree(['/login'])], loadComponent: () => import('./pages/admin').then(m => m.AdminPage) },
   { path: '', title: 'Codeforce | Community', loadComponent: () => import('./pages/home').then(m => m.HomePage) },
+  { path: 'team', title: 'Team | Codeforce', loadComponent: () => import('./pages/team').then(m => m.TeamPage) },
   { path: 'login', title: 'Log in | Codeforce', loadComponent: () => import('./pages/auth').then(m => m.AuthPage), data: { mode: 'login' } },
   { path: 'signup', title: 'Sign up | Codeforce', loadComponent: () => import('./pages/auth').then(m => m.AuthPage), data: { mode: 'signup' } },
   ...[
     { path: 'projects', label: 'Projects', heading: 'Ideas become real here.', description: 'Explore what our community is building with generative AI.', status: 'COMING SOON', message: 'Built with curiosity. Shared with everyone.', detail: 'Community projects and experiments will appear here as they are published.' },
     { path: 'research', label: 'Research', heading: 'Ideas worth exploring.', description: 'Explore the questions and projects that bring our community together.', status: 'COMING SOON', message: 'Research starts with a question.', detail: 'Our projects, findings, and publications will appear here.' },
-    { path: 'team', label: 'Team', heading: 'Meet the people behind Codeforce.', description: 'A team connected by curiosity and the drive to build.', status: 'COMING SOON', message: 'Get to know our team.', detail: 'Team profiles will be introduced here soon.' },
     { path: 'community', label: 'Community', heading: 'A place to belong.', description: 'Connect with curious builders, exchange ideas, and learn together.', status: 'GROW WITH US', message: 'Good things happen together.', detail: 'Explore our meetups from the home page or visit Contact to learn how to get involved.' },
     { path: 'about', label: 'About', heading: 'Built around curiosity.', description: 'Codeforce is a space for people who enjoy learning, building, and exchanging ideas.', status: 'OUR STORY', message: 'Every community starts with a conversation.', detail: 'This is starter content. Our story, values, and team will be introduced here.' },
     { path: 'speakers', label: 'Speakers', heading: 'People behind the ideas.', description: 'A space for the voices, experience, and perspectives of our community.', status: 'COMING SOON', message: 'Our speaker lineup is taking shape.', detail: 'Speaker profiles will appear here once they are announced.' },

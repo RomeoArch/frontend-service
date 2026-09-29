@@ -9,11 +9,18 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   host: {
     '(document:click)': 'closeOnOutsideClick($event)',
     '(document:keydown.escape)': 'openMenu.set(null)',
+    '(window:scroll)': 'onScroll()',
   },
 })
 export class App {
   // Sections that are not built yet show a small "Coming soon…" drop-down instead of navigating.
   readonly openMenu = signal<string | null>(null);
+  // Once the page scrolls, the header takes its darker hover look so it stays readable over content.
+  readonly scrolled = signal(false);
+
+  onScroll() {
+    this.scrolled.set(window.scrollY > 10);
+  }
 
   toggle(menu: string) {
     this.openMenu.update((current) => (current === menu ? null : menu));

@@ -1150,20 +1150,133 @@ body {
 }
 
 .past {
-  padding-block: 40px 60px;
+  --color-green: #34d399;
+  position: relative;
+  isolation: isolate;
+  margin-top: 40px;
+  padding-block: 90px 100px;
 }
+
+/* Full-width backdrop behind the section: a blue/purple/green wash under a fine
+   halftone dot screen, like an old printed photo. Extends past the section and fades at both ends. */
+.past::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 50%;
+  z-index: -1;
+  top: -160px;
+  bottom: -160px;
+  width: 100vw;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at center, rgb(255 255 255 / 16%) .7px, transparent 1.2px) 0 0 / 4px 4px,
+    radial-gradient(circle at center, rgb(52 211 153 / 14%) .7px, transparent 1.2px) 2px 2px / 4px 4px,
+    radial-gradient(ellipse 60% 70% at 15% 20%, rgb(52 211 153 / 22%), transparent 70%),
+    radial-gradient(ellipse 55% 65% at 85% 35%, rgb(139 92 246 / 24%), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 50% 90%, rgb(58 109 240 / 20%), transparent 70%),
+    #0c0f18;
+  /* Long soft fades at both ends so the texture melts into the page instead of starting at an edge. */
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent);
+}
+
 
 .past .section-heading {
   text-align: center;
 }
 
+.past-carousel {
+  /* Wider than the page content, matching the header's width, so the two cards get more room. */
+  --carousel-width: min(1440px, 100vw - 80px);
+  position: relative;
+  width: var(--carousel-width);
+  margin: 40px 0 0 calc((100% - var(--carousel-width)) / 2);
+}
+
+@media (max-width: 1000px) {
+  .past-carousel {
+    --carousel-width: calc(100vw - 48px);
+  }
+}
+
+/* Two cards fit, the next one peeks in from the right; swipe, scroll or use the arrows. */
 .past-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-auto-flow: column;
+  /* Exactly two cards in view; the rest are reached by sliding. */
+  grid-auto-columns: calc((100% - 20px) / 2);
   gap: 20px;
-  margin: 40px 0 0;
-  padding: 0;
+  margin: 0;
+  padding: 6px 0 8px;
+  scrollbar-width: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
   list-style: none;
+}
+
+.past-list > li {
+  scroll-snap-align: start;
+}
+
+.past-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pill under the cards: arrows plus one dot per position, hinting that the row slides. */
+.past-nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: fit-content;
+  margin: 28px auto 0;
+  padding: 8px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  background: rgb(18 21 32 / 88%);
+  backdrop-filter: blur(8px);
+}
+
+.past-nav button {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 10%);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 150ms, opacity 150ms;
+}
+
+.past-nav button:hover:not(:disabled) {
+  background: rgb(255 255 255 / 18%);
+}
+
+.past-nav button:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
+.past-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.past-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 25%);
+  transition: width 200ms, background-color 200ms;
+}
+
+.past-dots span.active {
+  width: 30px;
+  background: #a5c7ff;
 }
 
 .past-card {
@@ -1178,12 +1291,14 @@ body {
   cursor: pointer;
   transition: transform 200ms ease, border-color 200ms ease;
   overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 12%);
+  border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 20px;
-  background: rgb(255 255 255 / 4%);
+  background: rgb(18 21 32 / 88%);
+  backdrop-filter: blur(8px);
 }
 
 .past-media {
+  overflow: hidden;
   aspect-ratio: 16 / 9;
   background: linear-gradient(135deg, rgb(58 109 240 / 18%), rgb(139 92 246 / 18%));
 }
@@ -1215,7 +1330,7 @@ body {
 
 .past-body h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .past-topics {
@@ -1257,7 +1372,7 @@ body {
 
 @media (max-width: 760px) {
   .past-list {
-    grid-template-columns: 1fr;
+    grid-auto-columns: 100%;
   }
 }
 
@@ -1382,5 +1497,46 @@ body {
   .past-agenda li {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+}
+
+
+/* Hover: the screenshot zooms in inside its frame, so nothing gets clipped by the sliding row. */
+.past-media img {
+  transition: transform 500ms ease;
+}
+
+.past-card:hover .past-media img,
+.past-card:focus-visible .past-media img {
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .past-media img {
+    transition: none;
+  }
+}
+
+/* Opening the detail view: a soft zoom and fade from slightly smaller, with the backdrop fading in. */
+@media (prefers-reduced-motion: no-preference) {
+  .past-dialog[open] {
+    animation: dialog-zoom-in 450ms cubic-bezier(.16, 1, .3, 1);
+  }
+
+  .past-dialog[open]::backdrop {
+    animation: backdrop-in 350ms ease;
+  }
+}
+
+@keyframes dialog-zoom-in {
+  from {
+    transform: scale(.92);
+    opacity: 0;
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
   }
 }
